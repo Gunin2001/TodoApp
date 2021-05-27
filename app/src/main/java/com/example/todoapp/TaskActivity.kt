@@ -1,13 +1,15 @@
 package com.example.todoapp
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.app.*
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_task.*
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +95,27 @@ class TaskActivity : AppCompatActivity(), View.OnClickListener {
             finish()
         }
 
+       scheduleNotificaiton(getNotification(title),finalTime)
     }
+
+   fun scheduleNotificaiton(notification: Notification, finalTime: Long) {
+        val ni = Intent(this, NotificationPublisher::class.java)
+        ni.putExtra(NotificationPublisher)
+        ni.putExtra(NotificationPublisher.NOTIFICATION, notification)
+        val pendingIntent: PendingIntent =
+            PendingIntent.getBroadcast(this, 0, ni, PendingIntent.FLAG_UPDATE_CURRENT);
+        val alarmManager: AlarmManager = context.getSystemService(this ,Context.ALARM_SERVICE)  as AlarmManager
+        alarmManager?.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, finalTime, pendingIntent)
+    }
+
+    fun getNotification(title: String): Notification {
+        val builder: Notification.Builder = Notification.Builder(this)
+        builder.setContentTitle("Todo Reminder")
+        builder.setContentText(title)
+        builder.setSmallIcon(R.drawable.ic_launcher_foreground)
+        return builder.build()
+    }
+
 
     private fun setTimeListener() {
         myCalendar = Calendar.getInstance()
